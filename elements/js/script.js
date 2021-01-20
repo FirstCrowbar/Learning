@@ -34,6 +34,7 @@ console.log(oneHeart);                                     /* Поэтому л�
 const btns3 = document.querySelectorAll('button'); /* Работает аналогично CSS */
 console.log(btns3);                /* То есть можно выбрать любой элемент на странице */
 const box2 = document.querySelector('#box');    /* У id не забываем ставить # */
+<<<<<<< HEAD
 console.log(box2);
 
 
@@ -101,3 +102,6 @@ div.insertAdjacentHTML("afterend", '<h3>Goodbye</h3>');      /* Вставка �
 //____________________________________________________________________________________
 //ВСТАВКА ТЕКСТА
 // div.textContent = "Hi";
+=======
+console.log(box2);
+>>>>>>> 75504e7294eaf70272d99110ddde95543520d28d
