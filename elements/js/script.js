@@ -46,14 +46,14 @@ const box10 = document.getElementById('box'),
     oneHeart10 = document.querySelector('.heart'),
     wrapper = document.querySelector('.wrapper');
 
-console.dir(box);  /* Вывести в консоль все возможные свойства объекта (ко, что можно изменить */
+console.dir(box);  /* Вывести в консоль все возможные свойства объекта (то, что можно изменить */
 
 // box10.style.backgroundColor = 'blue';   /* Пример: изменение цвета фона */
 // box10.style.width = '100px';            /* Пример: изменение ширины элемента */
 let numb = 500;
-box10.style.cssText = `background-color: green; width: ${numb}px`;     /* Пример: обращение сразу к группе параметров */
+box10.style.cssText = `background-color: blue; width: ${numb}px`;     /* Пример: обращение сразу к группе параметров */
 btns10[1].style.borderRadius = '100%';  /* Пример: скругление углов */
-circles10[0].style.backgroundColor = 'red'; /* Не забываем указывать индекс в псевдомассиве ! */
+circles10[1].style.backgroundColor = 'red'; /* Не забываем указывать индекс в псевдомассиве ! */
 
 console.dir(circles10);
 
@@ -102,4 +102,25 @@ div.insertAdjacentHTML("afterend", '<h3>Goodbye</h3>');      /* Вставка �
 //ВСТАВКА ТЕКСТА
 // div.textContent = "Hi";
 console.log(box2);
+
+// const circles = document.querySelectorAll('.circle');
+// circles.forEach(item => {
+//     let wid = 20;
+//     item.style.backgroundColor = 'green';
+//     item.style.width = `${wid}px`;
+//     item.style.height = `${wid}px`;
+// });
+// console.dir(circles);
+
+// const big = document.createElement('div'),
+//     middle = document.createElement('div'),
+//     small = document.createElement('div');
+//
+// big.style.cssText = 'height: 500px; width: 500px; background-color: green';
+// middle.style.cssText = 'height: 250px; width: 250px; background-color: blue';
+// small.style.cssText = 'height: 50px; width: 50px; background-color: red';
+//
+// document.body.prepend(big);
+// big.append(middle);
+// middle.after(small);
 

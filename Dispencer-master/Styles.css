@@ -1,0 +1,174 @@
+
+/* ------------- ОСНОВНОЕ ТЕЛО ДОКУМЕНТА --------------- */
+
+body {background-image: url(Materials/Window.png);
+      background-repeat: no-repeat;
+      background-position: top center;
+      background-size: cover;
+      background-color: black;
+      font-family: tahoma;
+      text-transform: uppercase;}
+
+
+
+
+/* ----------------   ПАНЕЛЬ НАВИГАЦИИ ------------------  */
+
+.MainNav {width:auto;
+	      height: 73px;
+          background-color: black;
+          color: rgb(253, 253, 213);}
+
+.NavButton {height: 50px;
+            float: left;
+            padding-left: 30px;
+            padding-right: 30px;
+            padding-top: 20px;}
+
+.NavButton:hover {background-color: rgb(53, 53, 13);}
+
+.NavButton.enter {float: right;
+                  background-image: url(Materials/Login.png);
+                  background-repeat: no-repeat;
+                  background-position: 5% 45%;}
+
+.NavButton a {color: rgb(253, 253, 213);
+              font-size: large;
+              text-decoration: none;
+              font-family: tahoma;
+              text-transform: uppercase;}
+
+
+
+
+
+/* -------------------- ЛОГОТИП -------------------------  */
+
+header {text-align: center;
+        margin-bottom: 15px;}
+
+#MainLogo {height: 280px;}
+
+
+
+
+/* --------------- ПОПУЛЯРНЫЕ ТОВАРЫ --------------------  */
+
+.Popular.Wall {height: 435px;
+               width: 940px;
+               background-color: rgba(253, 253, 213, .9);
+               border-style: solid;
+               border-width: 2px;
+               border-color: rgba(32, 50, 135, .9);
+               margin: 0 auto;
+               text-align: center;
+               padding-top: 10px;}
+
+
+.Popular.Items {float: left;
+                margin-left: 42px;
+                margin-top: 30px;
+                font-size: 16px;
+                text-transform: none;}
+
+.Popular.Items:hover {box-shadow: 2px 2px 2px 2px #111;}
+
+.Popular.label {background-image: url(Materials/Redline.png);
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: top center;
+                width: 132px;
+                height: 38px;
+                margin: 0 auto;
+                padding-top: 5px;
+                color: white;}
+
+
+
+
+/* ----------------------- НОВОСТИ ----------------------  */
+
+.News  {height: 370px;
+        width: 940px;
+        background-color: rgba(253, 253, 213, .9);
+        border-style: solid;
+        border-width: 2px;
+        border-color: rgba(95, 5, 4, .9);
+        margin: 0 auto;
+        margin-top: 30px;
+        margin-bottom: 30px;
+        text-align: center;}
+
+.News p {text-transform: none;}
+
+.News.Button {width: 140px;
+              height: auto;
+              background-color: black;
+              border-style: none;
+              vertical-align: center;
+              padding: 10px;}
+
+.News.Button:hover {background-color: rgb(53, 53, 13);}
+
+.News.Button a {color: rgb(253, 253, 213);
+                text-decoration: none;}
+
+
+
+
+/* -------------------- Бренды ------------------------- */
+
+.Brands {width: 900px;
+         height: 230px;
+         padding-left: 180px;
+         margin: 0 auto;}
+
+.Logotype {float: left;
+           margin: 10px;}
+
+
+
+/* ------------------  Footer ------------------------- */
+
+.MainBottom {height: 190px;
+             background-color: rgb(36, 36, 36);
+             padding-top: 30px;
+             margin-top: 30px;
+             font-size: 14px;}
+
+.Alighn {margin: 0 auto;
+         width: 945px;}
+
+.Dislocation {color: rgb(253, 253, 213);
+              float: left;
+              line-height: 150%;}
+
+.Dislocation a {color: rgb(253, 253, 213);}
+
+
+
+.Groups {color: rgb(253, 253, 213);
+         float: left;
+         margin-left: 120px;
+         text-align: center;}
+
+.Quadro {width: 44px;
+         height: 44px;
+         background-color: black;
+         float: left;
+         text-align: center;
+         margin: 9px;}
+
+.Quadro img {margin-top: 12px;}
+
+.Author {color: rgb(253, 253, 213);
+        float: right;
+        text-align: center;}
+
+.Cont {width: 140px;
+       height: auto;
+       background-color: black;
+       border-style: none;
+       text-align: center;
+       padding: 2px;}
+
