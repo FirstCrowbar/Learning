@@ -1,3 +1,4 @@
+
 window.addEventListener('DOMContentLoaded', () => {
 
     //_______________________________________________________________________________________________
@@ -194,5 +195,67 @@ window.addEventListener('DOMContentLoaded', () => {
     post.menuPublic();
     console.log(vegy);
 
+    // ОТПРАВКА ФОРМЫ НА СЕРВЕР
+    const forms = document.querySelectorAll('form');
+    const message = {
+        loading: 'Загрузка',
+        success: 'Спасибо! Скоро мы с Вами свяжемся',
+        failure: 'Что-то пошло не так...'
+    };
+
+    //Обращаемся ко всем формам на странице и для каждой вызываем функцию
+    forms.forEach(item => {
+        postData(item);
+    })
+
+    function postData(form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            //Подготовка сообщения статуса с добавлению на страницу
+            const statusMessage = document.createElement('div');
+            statusMessage.classList.add('status');
+            statusMessage.textContent = message.loading;
+            form.append(statusMessage);
+
+            //Открытие потока общения с сервером
+            const request = new XMLHttpRequest();
+            request.open('POST', 'server.php');
+
+            //Подготовка формы к отправке на сервер
+            request.setRequestHeader('Content-type', 'application/json');
+            const formData = new FormData(form); //Объект собирает все данные с формы
+
+            //Перевод содержимого FormData в обычный объект
+            const object = {};
+            formData.forEach(function (value, key) {
+                object[key] = value;
+            });
+
+            //Перевод содержимого объекта в формат JSON
+            const json = JSON.stringify(object);
+
+            //Отправка формы на сервер
+            request.send(json);
+
+            //Функция показа сообщения о статусе
+            request.addEventListener('load', () => {
+                if (request.status === 200) {
+                    console.log(request.response);
+                    statusMessage.textContent = message.success;
+                    form.reset(); //Очистка полей формы
+                    setTimeout(() => {  //Через 2 секунды удаляем сообщение статуса
+                        statusMessage.remove();
+                    }, 2000)
+                } else {
+                    statusMessage.textContent = message.failure;
+                    console.log(request.status);
+                    console.log('no');
+                }
+            })
+
+        });
+
+    }
 
 });
