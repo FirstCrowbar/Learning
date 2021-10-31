@@ -94,8 +94,7 @@ window.addEventListener('DOMContentLoaded', () => {
     //МОДАЛЬНЫЕ ОКНА
 
     const  modalTrigger = document.querySelectorAll('[data-modal]'),
-        modal = document.querySelector(".modal"),
-        modalCloseBtn = document.querySelector('[data-close]');
+        modal = document.querySelector(".modal");
 
     //Функция открытия модального окна
     function modalOpen() {
@@ -111,10 +110,9 @@ window.addEventListener('DOMContentLoaded', () => {
     //Вызов функции путём нажатия на кнопки
     modalTrigger[0].addEventListener('click', modalOpen);
     modalTrigger[1].addEventListener('click', modalOpen);
-    modalCloseBtn.addEventListener('click', modalClose);
     //Закрытие при нажатии в затенённую область
     modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
+        if (e.target === modal || e.target.getAttribute('data-close') === '') {
             modalClose();
         }
     })
@@ -198,7 +196,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // ОТПРАВКА ФОРМЫ НА СЕРВЕР
     const forms = document.querySelectorAll('form');
     const message = {
-        loading: 'Загрузка',
+        loading: 'img/form/spinner.svg', //путь к изображению
         success: 'Спасибо! Скоро мы с Вами свяжемся',
         failure: 'Что-то пошло не так...'
     };
@@ -213,17 +211,17 @@ window.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
 
             //Подготовка сообщения статуса с добавлению на страницу
-            const statusMessage = document.createElement('div');
-            statusMessage.classList.add('status');
-            statusMessage.textContent = message.loading;
-            form.append(statusMessage);
+            const statusMessage = document.createElement('img');
+            statusMessage.src = message.loading; //путь к элементу
+            statusMessage.style.cssText = ` 
+                display: block;
+                margin: 0 auto;
+            `;
+            form.insertAdjacentElement('afterend', statusMessage); //вставка элемента после формы
 
-            //Открытие потока общения с сервером
-            const request = new XMLHttpRequest();
-            request.open('POST', 'server.php');
+
 
             //Подготовка формы к отправке на сервер
-            request.setRequestHeader('Content-type', 'application/json');
             const formData = new FormData(form); //Объект собирает все данные с формы
 
             //Перевод содержимого FormData в обычный объект
@@ -232,30 +230,61 @@ window.addEventListener('DOMContentLoaded', () => {
                 object[key] = value;
             });
 
-            //Перевод содержимого объекта в формат JSON
-            const json = JSON.stringify(object);
 
-            //Отправка формы на сервер
-            request.send(json);
-
-            //Функция показа сообщения о статусе
-            request.addEventListener('load', () => {
-                if (request.status === 200) {
-                    console.log(request.response);
-                    statusMessage.textContent = message.success;
-                    form.reset(); //Очистка полей формы
-                    setTimeout(() => {  //Через 2 секунды удаляем сообщение статуса
-                        statusMessage.remove();
-                    }, 2000)
-                } else {
-                    statusMessage.textContent = message.failure;
-                    console.log(request.status);
-                    console.log('no');
-                }
+            fetch('server.php', {
+                method: "POST",
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                body: JSON.stringify(object)
             })
-
+                .then(data => data.text()) //меняем формат данных на текстовый
+                .then(data => {
+                console.log(data);
+                showThanksModal(message.success);
+                statusMessage.remove();
+            }).catch(() => {
+                showThanksModal(message.failure);
+            }).finally(() => {
+                form.reset();
+            });
         });
-
     }
 
+    //МОДАЛЬНОЕ ОКНО "СПАСИБО"
+    function showThanksModal(message) {
+        const prevModalDialog = document.querySelector('.modal__dialog');
+
+        prevModalDialog.classList.add('hide');
+        modalOpen();
+
+        const thanksModal = document.createElement('div');
+        thanksModal.classList.add('modal__dialog');
+        thanksModal.innerHTML = `
+        <div class="modal__content">
+          <div class="modal__close" data-close>&times;</div>
+          <div class="modal__title">${message}</div>
+        </div>`;
+
+        document.querySelector('.modal').append(thanksModal);
+        setTimeout(() => {
+            thanksModal.remove();
+            prevModalDialog.classList.add('show');
+            prevModalDialog.classList.remove('hide');
+            modalClose();
+        }, 4000);
+    }
 });
+
+
+
+//ПРИМЕР ИСПОЛЬЗОВАНИЯ fetch Api
+// fetch('https://jsonplaceholder.typicode.com/posts',{
+//     method: "POST",
+//     body: JSON.stringify({name: 'Alex'}),
+//     headers: {
+//         'Content-type': 'application/json'
+//     }
+// })
+//     .then(response => response.json()) //Сервер возвращает промис в формате json (в данном случае)
+//     .then(json => console.log(json));
