@@ -139,60 +139,66 @@ window.addEventListener('DOMContentLoaded', () => {
     let container = document.querySelector("#container");
     let menuField = document.querySelector(".menu__field");
     class MenuItem {
-        constructor(img, alt, subtitle, descr, total) {
+        constructor(img, altimg, title, descr, price) {
             this.img = img;
-            this.alt = alt;
-            this.subtitle = subtitle;
+            this.altimg = altimg;
+            this.title = title;
             this.descr = descr;
-            this.total = total;
+            this.price = price;
         }
         menuPublic () {
             container.innerHTML += `<div class="menu__item">
-                    <img src=${this.img} alt=${this.alt}>
-                    <h3 class="menu__item-subtitle">${this.subtitle}</h3>
+                    <img src=${this.img} alt=${this.altimg}>
+                    <h3 class="menu__item-subtitle">${this.title}</h3>
                     <div class="menu__item-descr">${this.descr}</div>
                     <div class="menu__item-divider"></div>
                     <div class="menu__item-price">
                         <div class="menu__item-cost">Цена:</div>
-                        <div class="menu__item-total"><span>${this.total}</span> грн/день</div>
+                        <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
                     </div>
                 </div>`
         }
     }
 
-    //Экземпляр 1
-    const vegy = new MenuItem(
-        "img/tabs/vegy.jpg",
-        "vegy",
-        'Меню "Фитнес"',
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов.' +
-        ' Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-        229
-    );
-    //Экзепляр 2
-    const elite = new MenuItem(
-        "img/tabs/elite.jpg",
-        "elite",
-        'Меню “Премиум”',
-        "В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. " +
-        "Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!",
-        550
-    );
-    const post = new MenuItem(
-        "img/tabs/post.jpg",
-        "post",
-        'Меню "Постное"',
-        "Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного" +
-        " происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет " +
-        "тофу и импортных вегетарианских стейков.",
-        430
-    )
+    //_____________________________________________________________________________________________________
+    //ПОСТРОЕНИЕ БЛОКОВ МЕНЮ НА ОСНОВАНИИ ДАННЫХ С СЕРВЕРА
+    //Функция делает get-запрос к серверу
+    const getResource = async (url) => {
+        const res = await fetch(url);
+        if (!res.ok) {
+            throw new Error(`Could not fetch ${url}, status: ${res.status}`)
+        }
+        return await res.json();
+    }
+    // getResource('http://localhost:3000/menu') //Вызов функции с передачей адреса в виде аргумента
+    //     .then(data => { //С сервера приходит массив, который необходимо перебрать
+    //         data.forEach(({img, altimg, title, descr, price}) => { //В фигурных скобках - деструктуризация объекта
+    //             new MenuItem(img, altimg, title, descr, price, '.menu .container').menuPublic(); //И для каждого элемента создать новый экземпляр класса
+    //         });
+    //     })
+    //Альтернативный вариант, без использования конструктора. Если нужно построить только один раз
+    getResource('http://localhost:3000/menu')
+        .then(data => createCard(data));
+    function createCard(data) {
+        data.forEach(({img, altimg, title, descr, price}) => {
+            const element = document.createElement('div');
+            element.classList.add('menu__item');
+            element.innerHTML = `<div class="menu__item">
+                    <img src=${img} alt=${altimg}>
+                    <h3 class="menu__item-subtitle">${title}</h3>
+                    <div class="menu__item-descr">${descr}</div>
+                    <div class="menu__item-divider"></div>
+                    <div class="menu__item-price">
+                        <div class="menu__item-cost">Цена:</div>
+                        <div class="menu__item-total"><span>${price}</span> грн/день</div>
+                    </div>
+                </div>`;
+            document.querySelector('.menu .container').append(element);
+        })
+    }
 
-    vegy.menuPublic();
-    elite.menuPublic();
-    post.menuPublic();
-    console.log(vegy);
 
+    //__________________________________________________________________________________________________
     // ОТПРАВКА ФОРМЫ НА СЕРВЕР
     const forms = document.querySelectorAll('form');
     const message = {
@@ -203,13 +209,24 @@ window.addEventListener('DOMContentLoaded', () => {
 
     //Обращаемся ко всем формам на странице и для каждой вызываем функцию
     forms.forEach(item => {
-        postData(item);
+        bindPostData(item);
     })
 
-    function postData(form) {
+    //Функция отправки формы на сервер (вызывается из bindPostData)
+    const postData = async (url, data) => {
+        const res = await fetch(url, { //Адрес сервера (аргумент)
+            method: "POST",
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: data //Объект, отправляемый на сервер (аргумент)
+        });
+        return await res.json();
+    }
+
+    function bindPostData(form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-
             //Подготовка сообщения статуса с добавлению на страницу
             const statusMessage = document.createElement('img');
             statusMessage.src = message.loading; //путь к элементу
@@ -218,27 +235,11 @@ window.addEventListener('DOMContentLoaded', () => {
                 margin: 0 auto;
             `;
             form.insertAdjacentElement('afterend', statusMessage); //вставка элемента после формы
-
-
-
             //Подготовка формы к отправке на сервер
             const formData = new FormData(form); //Объект собирает все данные с формы
-
-            //Перевод содержимого FormData в обычный объект
-            const object = {};
-            formData.forEach(function (value, key) {
-                object[key] = value;
-            });
-
-
-            fetch('server.php', {
-                method: "POST",
-                headers: {
-                    'Content-type': 'application/json'
-                },
-                body: JSON.stringify(object)
-            })
-                .then(data => data.text()) //меняем формат данных на текстовый
+            const json = JSON.stringify(Object.fromEntries(formData.entries()));
+            //Вызываем fetch функцию с двумя аргументами
+            postData('http://localhost:3000/requests', json)
                 .then(data => {
                 console.log(data);
                 showThanksModal(message.success);
@@ -251,6 +252,7 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    //_____________________________________________________________________________________________________
     //МОДАЛЬНОЕ ОКНО "СПАСИБО"
     function showThanksModal(message) {
         const prevModalDialog = document.querySelector('.modal__dialog');
@@ -274,6 +276,11 @@ window.addEventListener('DOMContentLoaded', () => {
             modalClose();
         }, 4000);
     }
+
+    //ОБРАЩЕНИЕ К JSON-серверу
+    fetch('http://localhost:3000/menu')
+        .then(data => data.json())
+        .then(res => console.log(res));
 });
 
 
