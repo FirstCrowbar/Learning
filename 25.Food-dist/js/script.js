@@ -123,16 +123,16 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     })
     //Всплытие модального окна по таймеру
-    const modalTimerId = setTimeout(modalOpen, 3000);
-    //Всплытие модального окна после прокрутки всей страницы
-    function showModalByScroll() {
-        if (window.pageYOffset + document.documentElement.clientHeight >= document.
-            documentElement.scrollHeight) {
-            modalOpen();
-            window.removeEventListener('scroll', showModalByScroll);
-        }
-    }
-    window.addEventListener('scroll', showModalByScroll);
+    // const modalTimerId = setTimeout(modalOpen, 3000);
+    // //Всплытие модального окна после прокрутки всей страницы
+    // function showModalByScroll() {
+    //     if (window.pageYOffset + document.documentElement.clientHeight >= document.
+    //         documentElement.scrollHeight) {
+    //         modalOpen();
+    //         window.removeEventListener('scroll', showModalByScroll);
+    //     }
+    // }
+    // window.addEventListener('scroll', showModalByScroll);
 
     //______________________________________________________________________________________
     //СОЗДАНИЕ ОТДЕЛЬНОГО КЛАССА ДЛЯ МЕНЮ
@@ -162,40 +162,49 @@ window.addEventListener('DOMContentLoaded', () => {
 
     //_____________________________________________________________________________________________________
     //ПОСТРОЕНИЕ БЛОКОВ МЕНЮ НА ОСНОВАНИИ ДАННЫХ С СЕРВЕРА
-    //Функция делает get-запрос к серверу
-    const getResource = async (url) => {
-        const res = await fetch(url);
-        if (!res.ok) {
-            throw new Error(`Could not fetch ${url}, status: ${res.status}`)
-        }
-        return await res.json();
-    }
+
+    //Делаем запрос к серверу с использованием библиотеки AXIOS
+    axios.get('http://localhost:3000/menu')
+        .then(data => { //С сервера приходит массив, который необходимо перебрать
+            data.data.forEach(({img, altimg, title, descr, price}) => { //В фигурных скобках - деструктуризация объекта
+                new MenuItem(img, altimg, title, descr, price, '.menu .container').menuPublic(); //И для каждого элемента создать новый экземпляр класса
+            });
+        });
+
+    //На нативном JS код будет длиннее и сложнее
+    // const getResource = async (url) => {
+    //     const res = await fetch(url);
+    //     if (!res.ok) {
+    //         throw new Error(`Could not fetch ${url}, status: ${res.status}`)
+    //     }
+    //     return await res.json();
+    // }
     // getResource('http://localhost:3000/menu') //Вызов функции с передачей адреса в виде аргумента
     //     .then(data => { //С сервера приходит массив, который необходимо перебрать
     //         data.forEach(({img, altimg, title, descr, price}) => { //В фигурных скобках - деструктуризация объекта
     //             new MenuItem(img, altimg, title, descr, price, '.menu .container').menuPublic(); //И для каждого элемента создать новый экземпляр класса
     //         });
-    //     })
+    //     });
     //Альтернативный вариант, без использования конструктора. Если нужно построить только один раз
-    getResource('http://localhost:3000/menu')
-        .then(data => createCard(data));
-    function createCard(data) {
-        data.forEach(({img, altimg, title, descr, price}) => {
-            const element = document.createElement('div');
-            element.classList.add('menu__item');
-            element.innerHTML = `<div class="menu__item">
-                    <img src=${img} alt=${altimg}>
-                    <h3 class="menu__item-subtitle">${title}</h3>
-                    <div class="menu__item-descr">${descr}</div>
-                    <div class="menu__item-divider"></div>
-                    <div class="menu__item-price">
-                        <div class="menu__item-cost">Цена:</div>
-                        <div class="menu__item-total"><span>${price}</span> грн/день</div>
-                    </div>
-                </div>`;
-            document.querySelector('.menu .container').append(element);
-        })
-    }
+    // getResource('http://localhost:3000/menu')
+    //     .then(data => createCard(data));
+    // function createCard(data) {
+    //     data.forEach(({img, altimg, title, descr, price}) => {
+    //         const element = document.createElement('div');
+    //         element.classList.add('menu__item');
+    //         element.innerHTML = `<div class="menu__item">
+    //                 <img src=${img} alt=${altimg}>
+    //                 <h3 class="menu__item-subtitle">${title}</h3>
+    //                 <div class="menu__item-descr">${descr}</div>
+    //                 <div class="menu__item-divider"></div>
+    //                 <div class="menu__item-price">
+    //                     <div class="menu__item-cost">Цена:</div>
+    //                     <div class="menu__item-total"><span>${price}</span> грн/день</div>
+    //                 </div>
+    //             </div>`;
+    //         document.querySelector('.menu .container').append(element);
+    //     })
+    // }
 
 
     //__________________________________________________________________________________________________
@@ -281,6 +290,49 @@ window.addEventListener('DOMContentLoaded', () => {
     fetch('http://localhost:3000/menu')
         .then(data => data.json())
         .then(res => console.log(res));
+
+
+    //_________________________________________________________________________________________
+    //СЛАЙДЫ
+    const rightArrow = document.querySelector(".offer__slider-next");
+    const leftArrow = document.querySelector(".offer__slider-prev");
+    let total = document.querySelector("#total");
+    let current = document.querySelector("#current");
+    let slide = document.querySelector('.offer__slide');
+    let num = 0;
+    //Функция смены слайда
+    function changeSlide(arrow) {
+           let slides = {
+               images : [
+                   "food-12",
+                   "olive-oil",
+                   "paprika",
+                   "pepper"
+               ]
+           }
+           if (arrow === 'next') {
+               num++;
+               if (num >= slides.images.length) {
+                   num = 0;
+               }
+               slide.innerHTML = "";
+               slide.innerHTML = `<img src="img/slider/${slides.images[num]}.jpg">`
+
+           } else if (arrow === 'prev') {
+               --num;
+               if (num < 0) {
+                   num = slides.images.length - 1;
+               }
+               slide.innerHTML = "";
+               slide.innerHTML = `<img src="img/slider/${slides.images[num]}.jpg">`
+           }
+        current.innerHTML ="";
+        current.innerHTML = `0${num + 1}`;
+
+    }
+    //Триггеры
+    rightArrow.addEventListener('click', () => {changeSlide('next')});
+    leftArrow.addEventListener('click', () => {changeSlide('prev')});
 });
 
 
