@@ -294,45 +294,155 @@ window.addEventListener('DOMContentLoaded', () => {
 
     //_________________________________________________________________________________________
     //СЛАЙДЫ
-    const rightArrow = document.querySelector(".offer__slider-next");
-    const leftArrow = document.querySelector(".offer__slider-prev");
-    let total = document.querySelector("#total");
-    let current = document.querySelector("#current");
-    let slide = document.querySelector('.offer__slide');
-    let num = 0;
-    //Функция смены слайда
-    function changeSlide(arrow) {
-           let slides = {
-               images : [
-                   "food-12",
-                   "olive-oil",
-                   "paprika",
-                   "pepper"
-               ]
-           }
-           if (arrow === 'next') {
-               num++;
-               if (num >= slides.images.length) {
-                   num = 0;
-               }
-               slide.innerHTML = "";
-               slide.innerHTML = `<img src="img/slider/${slides.images[num]}.jpg">`
+    //Прокрутка слайдов по типу карусели
+    const slides = document.querySelectorAll('.offer__slide'),
+        slider = document.querySelector('.offer__slider'),
+        prev = document.querySelector('.offer__slider-prev'),
+        next = document.querySelector('.offer__slider-next'),
+        total = document.querySelector('#total'),
+        current = document.querySelector('#current'),
+        slidesWrapper = document.querySelector('.offer__slider-wrapper'),
+        slidesField = document.querySelector('.offer__slider-inner'),
+        width = window.getComputedStyle(slidesWrapper).width; //Получаем свойства сгенерированного в окне элемета
+    let slideIndex = 1;
+    let offset = 0;
 
-           } else if (arrow === 'prev') {
-               --num;
-               if (num < 0) {
-                   num = slides.images.length - 1;
-               }
-               slide.innerHTML = "";
-               slide.innerHTML = `<img src="img/slider/${slides.images[num]}.jpg">`
-           }
-        current.innerHTML ="";
-        current.innerHTML = `0${num + 1}`;
-
+    //Показания счётчика
+    if (slides.length < 10) {
+        total.textContent = `0${slides.length}`;
+        current.textContent = `0${slideIndex}`;
+    } else {
+        total.textContent = slides.length;
+        current.textContent = slideIndex;
     }
-    //Триггеры
-    rightArrow.addEventListener('click', () => {changeSlide('next')});
-    leftArrow.addEventListener('click', () => {changeSlide('prev')});
+
+    slidesField.style.width = 100 * slides.length + '%'; //Ширина видимого поля = ширина суммы изображений (в процентах)
+    slidesField.style.display = 'flex';
+    slidesField.style.transition = '0.5s all'; //Плавность смены вида
+    slidesWrapper.style.overflow = 'hidden'; //Скрываем все элементы, что не попадают в зону видимости
+    slides.forEach(slide => {
+        slide.style.width = width; //Устанавливаем одну ширину для всех слайдов
+    });
+    slider.style.position = 'relative'; //Все абсолютно ориентированные элементы внутри будут отображены нормально
+
+    //Делаем большую обёртку для всех элементов
+    const indicators = document.createElement('ol');
+    const dots = [];
+    indicators.classList.add('carousel-indicators');
+    slider.append(indicators);
+
+
+    //Основываясь на количестве слайдов, создаём точки
+    for (let i = 0; i < slides.length; i++) {
+        const dot = document.createElement('li');
+        dot.setAttribute('data-slide-to', i + 1);
+        dot.classList.add('dot');
+        if (i === 0) { //Для стартового элемента - прозрачность точки - 1%
+            dot.style.opacity = 1;
+        }
+        indicators.append(dot);
+        dots.push(dot); //Добавляем элементы в массив
+    }
+
+    next.addEventListener('click', () => {
+        if (offset === +width.slice(0, width.length - 2) * (slides.length - 1)) {
+            offset = 0;
+        } else {
+            offset += +width.slice(0, width.length - 2);
+        }
+        slidesField.style.transform = `translateX(-${offset}px)`; //Смещение влево на _ пикселей
+        if (slideIndex === slides.length) {
+            slideIndex = 1;
+        } else {
+            slideIndex++;
+        }
+        if (slides.length < 10) {
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = slideIndex;
+        }
+        dots.forEach(dot => dot.style.opacity = '.5'); //По умолчанию, прозрачность всех точек в массиве - 0.5%
+        dots[slideIndex - 1].style.opacity = '1'; //Но для активного элемента - 1%
+    });
+    prev.addEventListener('click', () => {
+        if (offset === 0) {
+            offset = +width.slice(0, width.length - 2) * (slides.length - 1);
+        } else {
+            offset -= +width.slice(0, width.length - 2);
+        }
+        slidesField.style.transform = `translateX(-${offset}px)`;
+
+        if (slideIndex === 1) {
+            slideIndex = slides.length;
+        } else {
+            slideIndex--;
+        }
+
+        if (slides.length < 10) {
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = slideIndex;
+        }
+        dots.forEach(dot => dot.style.opacity = '.5'); //По умолчанию, прозрачность всех точек в массиве - 0.5%
+        dots[slideIndex - 1].style.opacity = '1'; //Но для активного элемента - 1%
+    });
+
+    //Смещение при кликах на точки
+    dots.forEach(dot => {
+        dot.addEventListener('click', (e) => {
+            const slideTo = e.target.getAttribute('data-slide-to');
+            slideIndex = slideTo;
+            offset = +width.slice(0, width.length - 2) * (slideTo - 1);
+            slidesField.style.transform = `translateX(-${offset}px)`;
+            dots.forEach(dot => dot.style.opacity = '.5'); //По умолчанию, прозрачность всех точек в массиве - 0.5%
+            dots[slideIndex - 1].style.opacity = '1'; //Но для активного элемента - 1%
+            if (slides.length < 10) {
+                current.textContent = `0${slideIndex}`;
+            } else {
+                current.textContent = slideIndex;
+            }
+        })
+    })
+    //МОЙ ВАРИАНТ (заменён на более продвинутый)
+    // const rightArrow = document.querySelector(".offer__slider-next");
+    // const leftArrow = document.querySelector(".offer__slider-prev");
+    // let total = document.querySelector("#total");
+    // let current = document.querySelector("#current");
+    // let slide = document.querySelector('.offer__slide');
+    // let num = 0;
+    // //Функция смены слайда
+    // function changeSlide(arrow) {
+    //        let slides = {
+    //            images : [
+    //                "food-12",
+    //                "olive-oil",
+    //                "paprika",
+    //                "pepper"
+    //            ]
+    //        }
+    //        if (arrow === 'next') {
+    //            num++;
+    //            if (num >= slides.images.length) {
+    //                num = 0;
+    //            }
+    //            slide.innerHTML = "";
+    //            slide.innerHTML = `<img src="img/slider/${slides.images[num]}.jpg">`
+    //
+    //        } else if (arrow === 'prev') {
+    //            --num;
+    //            if (num < 0) {
+    //                num = slides.images.length - 1;
+    //            }
+    //            slide.innerHTML = "";
+    //            slide.innerHTML = `<img src="img/slider/${slides.images[num]}.jpg">`
+    //        }
+    //     current.innerHTML ="";
+    //     current.innerHTML = `0${num + 1}`;
+    //
+    // }
+    // //Триггеры
+    // rightArrow.addEventListener('click', () => {changeSlide('next')});
+    // leftArrow.addEventListener('click', () => {changeSlide('prev')});
 });
 
 
