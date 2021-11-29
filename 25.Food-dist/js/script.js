@@ -345,10 +345,10 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     next.addEventListener('click', () => {
-        if (offset === +width.slice(0, width.length - 2) * (slides.length - 1)) {
+        if (offset === +width.replace(/\D/g, '') * (slides.length - 1)) {
             offset = 0;
         } else {
-            offset += +width.slice(0, width.length - 2);
+            offset += +width.replace(/\D/g, '');
         }
         slidesField.style.transform = `translateX(-${offset}px)`; //Смещение влево на _ пикселей
         if (slideIndex === slides.length) {
@@ -366,9 +366,9 @@ window.addEventListener('DOMContentLoaded', () => {
     });
     prev.addEventListener('click', () => {
         if (offset === 0) {
-            offset = +width.slice(0, width.length - 2) * (slides.length - 1);
+            offset = +width.replace(/\D/g, '') * (slides.length - 1);
         } else {
-            offset -= +width.slice(0, width.length - 2);
+            offset -= +width.replace(/\D/g, '');
         }
         slidesField.style.transform = `translateX(-${offset}px)`;
 
@@ -392,7 +392,7 @@ window.addEventListener('DOMContentLoaded', () => {
         dot.addEventListener('click', (e) => {
             const slideTo = e.target.getAttribute('data-slide-to');
             slideIndex = slideTo;
-            offset = +width.slice(0, width.length - 2) * (slideTo - 1);
+            offset = +width.replace(/\D/g, '') * (slideTo - 1);
             slidesField.style.transform = `translateX(-${offset}px)`;
             dots.forEach(dot => dot.style.opacity = '.5'); //По умолчанию, прозрачность всех точек в массиве - 0.5%
             dots[slideIndex - 1].style.opacity = '1'; //Но для активного элемента - 1%
@@ -443,6 +443,80 @@ window.addEventListener('DOMContentLoaded', () => {
     // //Триггеры
     // rightArrow.addEventListener('click', () => {changeSlide('next')});
     // leftArrow.addEventListener('click', () => {changeSlide('prev')});
+
+    //________________________________________________________________________________________
+    //КАЛЬКУЛЯТОР
+    const result = document.querySelector('.calculating__result span');
+    //С объявлением переменных устанавливаем значения по умолчанию
+    let sex = 'female',
+        height, weight, age,
+        ratio = 1.375;
+
+    //Функция вывода результата
+    function calcTotal() {
+        //Если отсутствует хотя бы 1 аргумент, функция сбрасывается через return
+        if (!sex || !height || !weight || !age || !ratio) {
+            result.textContent = 'Не хватает данных';
+            return;
+        }
+        //Для женщин и мужчин разная формула
+        if (sex === 'female') {
+            result.textContent = Math.round((447.6 + (9.2 * weight) + (3.1 * height) - (4.3 * age)) * ratio);
+        } else {
+            result.textContent = Math.round((88.36 + (13.4 * weight) + (4.8 * height) - (5.7 * age) * ratio));
+        }
+    }
+    calcTotal();
+
+    //Функция сбора информации с переключателей
+    function getStaticInformation(parentSelector, activeClass) {
+        const elements = document.querySelectorAll(`${parentSelector} div`); //Получить все вложенные в аргумент дивы
+
+        elements.forEach(elem => {
+            elem.addEventListener('click', (e) => {
+                if (e.target.getAttribute('data-ratio')) { //Если у таргета есть данный атрибут
+                    ratio = +e.target.getAttribute('data-ratio') //То берём этот атрибут
+                } else {
+                    sex = e.target.getAttribute('id'); //Если атрибута нет, берём его id
+                }
+
+                //Все элементы лишаем активного класса
+                elements.forEach(elem => {
+                    elem.classList.remove(activeClass);
+                });
+                //А таргету - присваиваем его
+                e.target.classList.add(activeClass);
+                calcTotal();
+            });
+        });
+    }
+
+    getStaticInformation('#gender', 'calculating__choose-item_active');
+    getStaticInformation('.calculating__choose_big', 'calculating__choose-item_active');
+
+    //Функция сбора информации с форм
+    function getDynamicInformation(selector) {
+        const input = document.querySelector(selector);
+        input.addEventListener('input', () => {
+           switch(input.getAttribute('id')) {
+               case 'height':
+                   height = +input.value;
+                   break;
+               case 'weight':
+                   weight = +input.value;
+                   break;
+               case 'age':
+                   age = +input.value;
+                   break;
+           }
+            calcTotal();
+        });
+
+    }
+
+    getDynamicInformation('#height');
+    getDynamicInformation('#weight');
+    getDynamicInformation('#age');
 });
 
 
